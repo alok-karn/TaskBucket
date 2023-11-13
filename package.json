@@ -10,17 +10,24 @@
   },
   "dependencies": {
     "@react-navigation/stack": "^6.3.16",
+    "@types/react": "~18.0.27",
     "expo": "~48.0.15",
     "expo-status-bar": "~1.4.4",
+    "lucide-react-native": "^0.262.0",
     "react": "18.2.0",
-    "react-native": "0.71.8",
+    "react-icons": "^4.10.1",
+    "react-native": "0.71.14",
+    "react-native-appearance": "^0.3.4",
+    "react-native-draggable-flatlist": "^4.0.1",
     "react-native-gesture-handler": "~2.9.0",
+    "react-native-push-notification": "^8.1.1",
     "react-native-reanimated": "~2.14.4",
     "react-native-screens": "^3.20.0",
     "react-native-vector-icons": "^9.2.0",
     "react-navigation": "^4.4.4",
-    "typescript": "^4.9.4",
-    "@types/react": "~18.0.27"
+    "react-navigation-stack": "^2.10.4",
+    "react-useanimations": "^2.10.0",
+    "typescript": "^4.9.4"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

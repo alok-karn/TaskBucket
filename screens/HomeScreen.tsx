@@ -1,9 +1,17 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, TextInput, Button, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, TextInput, Button, FlatList,Text } from 'react-native';
+import { Trash } from 'lucide-react-native';
+import IconButton from '../components/IconButton';
 
+// import DraggableFlatList, {RenderItemParams} from 'react-native-draggable-flatlist';
+
+import PushNotification from 'react-native-push-notification'
 interface TodoItem {
   id: string;
   title: string;
+  timestamp: string;
+  deadline: Date;
+  completed: boolean; // property for completed status
 }
 
 const HomeScreen: React.FC = () => {
@@ -12,15 +20,36 @@ const HomeScreen: React.FC = () => {
 
   const addTodo = () => {
     if (text.length > 0) {
+    
+      const timestamp = new Date().toLocaleString(undefined, {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+      });
+      const deadline = new Date(); // set your deadline here
+      deadline.setHours(deadline.getHours() + 24); // set deadline to 24 hrs from now
       setTodos((prevTodos) => [
         ...prevTodos,
         {
           id: Math.random().toString(),
           title: text,
+          timestamp: timestamp,
+          deadline: deadline,
+          completed: false, // default not completed
         },
       ]);
       setText('');
     }
+  };
+
+  const toggleTodo = (id: string) => {
+    setTodos((prevTodos) =>
+      prevTodos.map((todo) =>
+        todo.id === id ? { ...todo, completed: !todo.completed } : todo
+      )
+    );
   };
 
   const deleteTodo = (id: string) => {
@@ -29,20 +58,70 @@ const HomeScreen: React.FC = () => {
     );
   };
 
+  // useEffect(() => {
+  //   checkNearDeadlines();
+  // }, [todos]);
+
+
+  // const checkNearDeadlines = () => {
+  //   const now = new Date();
+  //   todos.forEach((todo) => {
+  //     const timeDifference = todo.deadline.getTime() - now.getTime();
+  //     const hoursDifference = timeDifference / (1000 * 3600);
+
+  //     if (hoursDifference <= 24) {
+  //       PushNotification.localNotification({
+  //         title: 'Task Deadline',
+  //         message: `The deadline for "${todo.title}" is approaching! `
+  //       })
+  //     }
+  //   })
+  // }
+  // OLD RENDER TODO ITEM FUNCTION
+
   const renderTodoItem = ({ item }: { item: TodoItem }) => (
-    <View style={styles.item}>
-      <Button
+
+    <View>
+      <View style={styles.timestampContainer}>
+      <Text style={styles.timestamp}>{ item.timestamp}</Text>
+
+      </View>
+
+    <View style={[styles.item, item.completed && styles.completedItem]}>
+
+      {/* <Button
         title="Delete"
         onPress={() => deleteTodo(item.id)}
         color="red"
-      />
+      /> */}
+      {/* <Trash /> */}
+      
+
+      
       <TextInput
-        style={styles.title}
+        style={[styles.title, item.completed && styles.completedTitle]}
         value={item.title}
         editable={false}
-      />
+        />
+      <IconButton onPress={() => toggleTodo(item.id)} iconName={item.completed ? "check-circle" : "check-circle-outline"} color={item.completed ? "#32c032" : "#8784d8"} />
+      <IconButton onPress={() => deleteTodo(item.id)} iconName="delete-outline" color="tomato"/>
+    </View>
     </View>
   );
+
+  // const renderTodoItem = ({ item, index, drag, isActive }: RenderItemParams<TodoItem>) => (
+  //   <View style={[styles.item, isActive && { backgroundColor: 'gray' }]}>
+  //     <IconButton onPress={() => deleteTodo(item.id)} iconName="delete-outline" color="tomato" />
+  //     <TextInput
+  //       style={styles.title}
+  //       value={item.title}
+  //       editable={false}
+  //     />
+  //     <IconButton onPress={drag} iconName="drag" color="#999" />
+  //   </View>
+  // );
+
+  
 
   return (
     <View style={styles.container}>
@@ -53,13 +132,16 @@ const HomeScreen: React.FC = () => {
           value={text}
           onChangeText={(value) => setText(value)}
         />
-        <Button title="Add" onPress={addTodo} />
+        {/* <Button title="Add" onPress={addTodo} /> */}
+        <IconButton onPress={addTodo} iconName="add-circle-outline" color="#211bd1"/>
+        
       </View>
       <FlatList
         data={todos}
         renderItem={renderTodoItem}
         keyExtractor={(item) => item.id}
         style={styles.list}
+        // onDragEnd={({ data }) => setTodos(data)}
       />
     </View>
   );
@@ -68,7 +150,7 @@ const HomeScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#fffcfc',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -85,6 +167,9 @@ const styles = StyleSheet.create({
     borderColor: '#bbb',
     borderWidth: 1,
     borderRadius: 10,
+    shadowColor: '#bbb',
+    shadowRadius: 10,
+
   },
   item: {
     flexDirection: 'row',
@@ -96,9 +181,31 @@ const styles = StyleSheet.create({
     marginVertical: 4,
     marginHorizontal: 16,
   },
+  completedItem: {
+    opacity: 0.7,
+  },
   title: {
     flex: 1,
     marginLeft: 8,
+  },
+  completedTitle: {
+    textDecorationLine: 'line-through',
+    color: '#777'
+  },
+  timestampContainer: {
+    width: 150,
+    backgroundColor: '#ddd',
+    borderRadius: 20,
+    paddingHorizontal: 15,
+    marginLeft: 20,
+    marginTop: 15,
+    alignItems: 'center',
+  },
+  timestamp: {
+    color: '#999',
+    fontSize: 12,
+    // marginRight: 8,
+
   },
   list: {
     flex: 1,
