@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, View, TextInput, Button, FlatList,Text } from 'react-native';
-import { Trash } from 'lucide-react-native';
+import { StyleSheet, View, TextInput, Button, FlatList,Text, Alert } from 'react-native';
+
 import IconButton from '../components/IconButton';
 
-// import DraggableFlatList, {RenderItemParams} from 'react-native-draggable-flatlist';
 
-import PushNotification from 'react-native-push-notification'
 interface TodoItem {
   id: string;
   title: string;
@@ -58,28 +56,30 @@ const HomeScreen: React.FC = () => {
     );
   };
 
-  // useEffect(() => {
-  //   checkNearDeadlines();
-  // }, [todos]);
-
-
-  // const checkNearDeadlines = () => {
-  //   const now = new Date();
-  //   todos.forEach((todo) => {
-  //     const timeDifference = todo.deadline.getTime() - now.getTime();
-  //     const hoursDifference = timeDifference / (1000 * 3600);
-
-  //     if (hoursDifference <= 24) {
-  //       PushNotification.localNotification({
-  //         title: 'Task Deadline',
-  //         message: `The deadline for "${todo.title}" is approaching! `
-  //       })
-  //     }
-  //   })
-  // }
+  
   // OLD RENDER TODO ITEM FUNCTION
 
-  const renderTodoItem = ({ item }: { item: TodoItem }) => (
+  const renderTodoItem = ({ item }: { item: TodoItem }) => {
+    
+    const handleDelete = () => {
+      Alert.alert(
+        'Delete Task',
+        `Are you sure you want to delete "${item.title}"`,
+        [
+          {
+            text: 'Cancel',
+            style: 'cancel',
+          }, {
+            text: 'Delete', 
+            onPress: () => deleteTodo(item.id),
+            style: 'destructive'
+          }
+        ], {cancelable: true}
+      )
+    }
+    
+    
+    return (
 
     <View>
       <View style={styles.timestampContainer}>
@@ -89,13 +89,6 @@ const HomeScreen: React.FC = () => {
 
     <View style={[styles.item, item.completed && styles.completedItem]}>
 
-      {/* <Button
-        title="Delete"
-        onPress={() => deleteTodo(item.id)}
-        color="red"
-      /> */}
-      {/* <Trash /> */}
-      
 
       
       <TextInput
@@ -104,22 +97,11 @@ const HomeScreen: React.FC = () => {
         editable={false}
         />
       <IconButton onPress={() => toggleTodo(item.id)} iconName={item.completed ? "check-circle" : "check-circle-outline"} color={item.completed ? "#32c032" : "#8784d8"} />
-      <IconButton onPress={() => deleteTodo(item.id)} iconName="delete-outline" color="tomato"/>
+      <IconButton onPress={handleDelete} iconName="delete-outline" color="tomato"/>
     </View>
     </View>
-  );
+  );}
 
-  // const renderTodoItem = ({ item, index, drag, isActive }: RenderItemParams<TodoItem>) => (
-  //   <View style={[styles.item, isActive && { backgroundColor: 'gray' }]}>
-  //     <IconButton onPress={() => deleteTodo(item.id)} iconName="delete-outline" color="tomato" />
-  //     <TextInput
-  //       style={styles.title}
-  //       value={item.title}
-  //       editable={false}
-  //     />
-  //     <IconButton onPress={drag} iconName="drag" color="#999" />
-  //   </View>
-  // );
 
   
 
@@ -132,7 +114,7 @@ const HomeScreen: React.FC = () => {
           value={text}
           onChangeText={(value) => setText(value)}
         />
-        {/* <Button title="Add" onPress={addTodo} /> */}
+      
         <IconButton onPress={addTodo} iconName="add-circle-outline" color="#211bd1"/>
         
       </View>
@@ -141,7 +123,7 @@ const HomeScreen: React.FC = () => {
         renderItem={renderTodoItem}
         keyExtractor={(item) => item.id}
         style={styles.list}
-        // onDragEnd={({ data }) => setTodos(data)}
+        
       />
     </View>
   );
